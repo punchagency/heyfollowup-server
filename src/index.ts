@@ -7,6 +7,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRouter from "./auth/routes/auth.routes";
 import followUpRouter from "./followUp/routes/followUp.routes";
+import paymentRouter from "./payment/routes/payment.route";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ connectDB();
 
 app.use("/api/auth", authRouter);
 app.use("/api/follow-up", followUpRouter);
+app.use("/api/payments", paymentRouter);
 
 app.listen(env.server_port, () => {
   console.log(`Server running on http://localhost:${env.server_port}`);

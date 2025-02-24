@@ -12,7 +12,8 @@ import { OTPModel, UserModel } from "../models/auth.model";
 import { env } from "../../config/env";
 import { generateOTP } from "../../common/utils/otp.util";
 import { sendEmail } from "../../config/nodemailer-config";
-import { Request, Response } from "express";
+import mongoose from "mongoose";
+import { stripe } from "../../config/stripe-config";
 
 @Service()
 export class AuthService {
@@ -148,7 +149,7 @@ export class AuthService {
   }
 
   async verifyOTP(data: VerifyOtpDto): Promise<string> {
-    const session = await UserModel.startSession();
+    const session = await mongoose.startSession();
     session.startTransaction();
 
     try {
@@ -169,9 +170,18 @@ export class AuthService {
         );
         if (!user) throw new Error("User details not found");
 
-        await UserModel.findByIdAndUpdate(user._id, {
-          isVerified: true,
-        }).session(session);
+        const stripeCustomerId = await this.generateStripeId(
+          user.email,
+          user.full_name
+        );
+
+        await UserModel.findByIdAndUpdate(
+          user._id,
+          {
+            isVerified: true,
+          },
+          { stripeCustomerId }
+        ).session(session);
       }
 
       await session.commitTransaction();
@@ -229,6 +239,15 @@ export class AuthService {
       // expiresIn: 900,
       expiresIn: 3600,
     });
+  }
+
+  async generateStripeId(email: string, name: string): Promise<string> {
+    const customer = await stripe.customers.create({
+      email,
+      name,
+    });
+
+    return customer.id;
   }
 
   async getProfile(userId: string): Promise<any> {

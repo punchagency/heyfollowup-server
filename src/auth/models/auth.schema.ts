@@ -22,6 +22,9 @@ export class User {
   @prop({ default: false })
   isVerified: boolean;
 
+  @prop({ unique: true, sparse: true })
+  stripeCustomerId?: string;
+
   comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password ?? "");
   }

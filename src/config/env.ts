@@ -12,4 +12,9 @@ export const env = {
     user: process.env.SMTP_USER!,
     pass: process.env.SMTP_PASS!,
   },
+  stripe: {
+    publishableKey: process.env.STRIPE_PUBLISHABLE_KEY as string,
+    secretKey: process.env.STRIPE_SECRET_KEY as string,
+    productId: process.env.PRODUCT_ID as string,
+  },
 };
