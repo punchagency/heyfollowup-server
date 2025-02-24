@@ -17,7 +17,7 @@ export class FollowUp {
   @prop({
     required: true,
     unique: false,
-    sparse: true,
+    // sparse: true,
   })
   email: string;
 
@@ -51,6 +51,10 @@ export class FollowUp {
   @prop()
   followUpDays?: number;
 
-  @prop({ required: false, unique: false, sparse: true })
+  @prop({
+    required: false,
+    unique: false,
+    // sparse: true,
+  })
   phoneNumber?: string;
 }

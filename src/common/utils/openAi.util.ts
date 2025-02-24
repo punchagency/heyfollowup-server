@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY, // Ensure you set this in your .env file
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export const generateFollowUpMessage = async (followUpDto: any) => {

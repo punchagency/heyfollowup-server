@@ -35,7 +35,8 @@ export class FollowUpService {
 
   async getFollowUps(userId: string) {
     try {
-      return await FollowUpModel.find({ userId });
+      const followUps = await FollowUpModel.find({ userId });
+      return followUps;
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to fetch follow-ups: ${error.message}`);
@@ -61,47 +62,66 @@ export class FollowUpService {
     }
   }
 
-  async updateFollowUp(
-    userId: string,
-    followUpId: string,
-    data: Partial<FollowUpDto>
-  ) {
+  async generateFollowUpMessage(userId: string, followUpId: string) {
     try {
-      const updatedFollowUp = await FollowUpModel.findByIdAndUpdate(
-        { _id: followUpId, userId },
-        data,
-        { new: true, runValidators: true }
-      );
-      if (!updatedFollowUp)
-        throw new Error("Follow-up not found or unauthorized");
-      return updatedFollowUp;
+      const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
+      if (!followUp) throw new Error("Follow-up not found or unauthorized");
+
+      const newMessage = await generateFollowUpMessage(followUp);
+
+      return { followUp, newMessage };
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Failed to update follow-up: ${error.message}`);
+        throw new Error(`Failed to generate follow-up: ${error.message}`);
       } else {
         throw new Error(
-          "Failed to update follow-up: An unknown error occurred"
+          "Failed to generate follow-up: An unknown error occurred"
         );
       }
     }
   }
 
-  async deleteFollowUp(userId: string, followUpId: string) {
-    try {
-      const result = await FollowUpModel.findByIdAndDelete({
-        _id: followUpId,
-        userId,
-      });
-      if (!result) throw new Error("Follow-up not found or unauthorized");
-      return { result, message: "Follow-up deleted successfully" };
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to delete follow-up: ${error.message}`);
-      } else {
-        throw new Error(
-          "Failed to delete follow-up: An unknown error occurred"
-        );
-      }
-    }
-  }
+  // async updateFollowUp(
+  //   userId: string,
+  //   followUpId: string,
+  //   data: Partial<FollowUpDto>
+  // ) {
+  //   try {
+  //     const updatedFollowUp = await FollowUpModel.findByIdAndUpdate(
+  //       { _id: followUpId, userId },
+  //       data,
+  //       { new: true, runValidators: true }
+  //     );
+  //     if (!updatedFollowUp)
+  //       throw new Error("Follow-up not found or unauthorized");
+  //     return updatedFollowUp;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error(`Failed to update follow-up: ${error.message}`);
+  //     } else {
+  //       throw new Error(
+  //         "Failed to update follow-up: An unknown error occurred"
+  //       );
+  //     }
+  //   }
+  // }
+
+  // async deleteFollowUp(userId: string, followUpId: string) {
+  //   try {
+  //     const result = await FollowUpModel.findByIdAndDelete({
+  //       _id: followUpId,
+  //       userId,
+  //     });
+  //     if (!result) throw new Error("Follow-up not found or unauthorized");
+  //     return { result, message: "Follow-up deleted successfully" };
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error(`Failed to delete follow-up: ${error.message}`);
+  //     } else {
+  //       throw new Error(
+  //         "Failed to delete follow-up: An unknown error occurred"
+  //       );
+  //     }
+  //   }
+  // }
 }

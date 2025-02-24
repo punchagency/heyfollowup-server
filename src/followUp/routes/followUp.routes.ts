@@ -21,15 +21,20 @@ followUpRouter.get(
   authenticate,
   followUpController.getFollowUpById.bind(followUpController)
 );
-followUpRouter.patch(
-  "/:followUpId",
+followUpRouter.post(
+  "/:followUpId/",
   authenticate,
-  followUpController.updateFollowUp.bind(followUpController)
+  followUpController.generateFollowUpMessage.bind(followUpController)
 );
-followUpRouter.delete(
-  "/:followUpId",
-  authenticate,
-  followUpController.deleteFollowUp.bind(followUpController)
-);
+// followUpRouter.patch(
+//   "/:followUpId",
+//   authenticate,
+//   followUpController.updateFollowUp.bind(followUpController)
+// );
+// followUpRouter.delete(
+//   "/:followUpId",
+//   authenticate,
+//   followUpController.deleteFollowUp.bind(followUpController)
+// );
 
 export default followUpRouter;

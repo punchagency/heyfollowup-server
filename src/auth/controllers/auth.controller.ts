@@ -46,7 +46,6 @@ export class AuthController {
         sameSite: "strict", // Prevents CSRF attacks
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-      console.log("login", signInDetails.refreshToken);
       res.status(200).json({
         success: true,
         user: signInDetails.user,
@@ -185,7 +184,7 @@ export class AuthController {
     } catch (error: any) {
       res.status(400).json({
         success: false,
-        error: error.message || "An unexpected error occurred",
+        error: error.message || error || "An unexpected error occurred",
       });
     }
   }
