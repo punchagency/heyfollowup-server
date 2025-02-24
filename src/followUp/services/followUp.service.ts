@@ -1,18 +1,27 @@
 import { Service } from "typedi";
 import { FollowUpDto } from "../dtos/followUp.dto";
 import { FollowUpModel } from "../models/followUp.model";
+import { generateFollowUpMessage } from "../../common/utils/openAi.util";
 
 @Service()
 export class FollowUpService {
   async createFollowUp(userId: string, data: FollowUpDto) {
     try {
-      const existingFollowUp = await FollowUpModel.findOne({
-        $or: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
-      });
+      // const existingFollowUp = await FollowUpModel.findOne({
+      //   $or: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
+      // });
 
-      if (existingFollowUp) throw new Error("FollowUp already exists");
+      // if (existingFollowUp) throw new Error("FollowUp already exists");
 
-      return await FollowUpModel.create({ ...data, userId });
+      let message: string | null = "";
+
+      if (data.schedule === "Follow Up Now") {
+        message = await generateFollowUpMessage(data);
+      }
+
+      const followUp = await FollowUpModel.create({ ...data, userId });
+
+      return { followUp, message };
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to create follow-up: ${error.message}`);

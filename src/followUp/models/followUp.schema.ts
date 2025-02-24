@@ -8,16 +8,20 @@ export class FollowUp {
   @prop({ required: true })
   name: string;
 
-  @prop({ required: true })
+  @prop({ required: false })
   date?: Date;
 
   @prop({ required: true })
   metWith: string;
 
-  @prop({ required: true, unique: true, sparse: true })
+  @prop({
+    required: true,
+    unique: false,
+    sparse: true,
+  })
   email: string;
 
-  @prop({ required: true })
+  @prop({ required: false })
   meetingLocation?: string;
 
   @prop()
@@ -47,6 +51,6 @@ export class FollowUp {
   @prop()
   followUpDays?: number;
 
-  @prop({ required: false, unique: true, sparse: true })
+  @prop({ required: false, unique: false, sparse: true })
   phoneNumber?: string;
 }
