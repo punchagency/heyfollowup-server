@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import { FollowUpDto } from "../dtos/followUp.dto";
 import { FollowUpModel } from "../models/followUp.model";
 import { generateFollowUpMessage } from "../../common/utils/openAi.util";
+import mongoose from "mongoose";
 
 @Service()
 export class FollowUpService {
@@ -50,6 +51,9 @@ export class FollowUpService {
 
   async getFollowUpById(userId: string, followUpId: string) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(followUpId)) {
+        throw new Error("Invalid mongodb ID");
+      }
       const followUp = await FollowUpModel.findOne({ userId, _id: followUpId });
       if (!followUp) throw new Error("Follow-up not found or unauthorized");
       return followUp;
@@ -64,6 +68,9 @@ export class FollowUpService {
 
   async generateFollowUpMessage(userId: string, followUpId: string) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(followUpId)) {
+        throw new Error("Invalid mongodb ID");
+      }
       const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
       if (!followUp) throw new Error("Follow-up not found or unauthorized");
 

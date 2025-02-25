@@ -139,6 +139,9 @@ export class PaymentService {
 
   async getPaymentById(userId: string, paymentId: string) {
     try {
+      if (!mongoose.Types.ObjectId.isValid(paymentId)) {
+        throw new Error("Invalid mongodb ID");
+      }
       const payment = await PaymentModel.findOne({ _id: paymentId, userId });
       if (!payment) throw new Error("Payment not found");
       return payment;
