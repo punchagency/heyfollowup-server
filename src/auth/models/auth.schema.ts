@@ -25,6 +25,9 @@ export class User {
   @prop({ unique: true, sparse: true })
   stripeCustomerId?: string;
 
+  @prop({ default: false })
+  subscribed: boolean;
+
   comparePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password ?? "");
   }

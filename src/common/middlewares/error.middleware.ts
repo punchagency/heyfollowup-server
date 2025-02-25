@@ -2,10 +2,13 @@ import { Request, Response, NextFunction } from "express";
 
 class ApiError extends Error {
   statusCode: number;
+  error: Error;
 
-  constructor(message: string, statusCode: number = 500) {
-    super(message);
+  constructor(error: Error, statusCode: number = 500) {
+    super(error.message);
+    this.error = error;
     this.statusCode = statusCode;
+
     Error.captureStackTrace(this, this.constructor);
   }
 }
@@ -19,7 +22,7 @@ const errorMiddleware = (
   const statusCode = err.statusCode || 500;
   res.status(statusCode).json({
     success: false,
-    error: err.message || err || "An unexpected error occurred",
+    error: err.message || err.error || "An unexpected error occurred",
   });
 };
 

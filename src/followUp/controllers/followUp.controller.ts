@@ -25,7 +25,7 @@ export class FollowUpController {
       );
       res.status(201).json({ success: true, response });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -38,7 +38,7 @@ export class FollowUpController {
       const followUps = await this.followUpService.getFollowUps(req.user.id);
       res.status(200).json({ success: true, followUps });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -55,7 +55,7 @@ export class FollowUpController {
       );
       res.status(200).json({ success: true, followUp });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -73,7 +73,7 @@ export class FollowUpController {
 
       res.status(200).json({ success: true, response });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 

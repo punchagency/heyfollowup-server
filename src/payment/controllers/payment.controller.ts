@@ -26,7 +26,7 @@ export class PaymentController {
 
       res.status(201).json({ success: true, result });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -39,7 +39,7 @@ export class PaymentController {
       const payments = await this.paymentService.getAllPayments(req.user.id);
       res.status(200).json({ success: true, payments });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -55,7 +55,7 @@ export class PaymentController {
       );
       res.status(200).json({ success: true, payment });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -68,7 +68,7 @@ export class PaymentController {
       const cards = await this.paymentService.getSavedCards(req.user.id);
       res.status(200).json({ success: true, cards });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -86,7 +86,7 @@ export class PaymentController {
         .status(200)
         .json({ success: true, message: "Payment method deleted" });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 }

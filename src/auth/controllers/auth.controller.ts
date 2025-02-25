@@ -29,7 +29,7 @@ export class AuthController {
           "OTP sent to your email. Please verify to complete registration.",
       });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -50,7 +50,7 @@ export class AuthController {
         accessToken: signInDetails.accessToken,
       });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -73,7 +73,7 @@ export class AuthController {
         .status(200)
         .json({ success: true, message: "Signed out successfully" });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -91,7 +91,7 @@ export class AuthController {
         message: "OTP sent to email. Please verify to complete password reset.",
       });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -108,7 +108,7 @@ export class AuthController {
         .status(200)
         .json({ success: true, message: "Password reset successfully" });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -123,7 +123,7 @@ export class AuthController {
       await this.authService.changePassword(req.user.id, data);
       res.status(200).json({ success: true, message: "Password changed" });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -138,7 +138,7 @@ export class AuthController {
       const message = await this.authService.sendOTP(data);
       res.status(200).json({ success: true, message });
     } catch (error: any) {
-      next(new ApiError(error.message, 403));
+      next(new ApiError(error, 403));
     }
   }
 
@@ -153,7 +153,7 @@ export class AuthController {
       const user = await this.authService.verifyOTP(data);
       res.status(201).json({ success: true, user });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -170,7 +170,7 @@ export class AuthController {
       );
       res.status(200).json({ success: true, accessToken: newAccessToken });
     } catch (error: any) {
-      next(new ApiError(error.message, 403));
+      next(new ApiError(error, 403));
     }
   }
 
@@ -183,7 +183,7 @@ export class AuthController {
       const user = await this.authService.getProfile(req.user.id);
       res.status(200).json({ success: true, user });
     } catch (error: any) {
-      next(new ApiError(error.message, 400));
+      next(new ApiError(error, 400));
     }
   }
 
@@ -192,7 +192,7 @@ export class AuthController {
   //     const users = await this.authService.getAll();
   //     res.status(200).json({ success: true, users });
   //   } catch (error: any) {
-  //     next(new ApiError(error.message, 400));
+  //     next(new ApiError(error, 400));
   //   }
   // }
 }

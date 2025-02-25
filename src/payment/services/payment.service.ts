@@ -17,6 +17,10 @@ export class PaymentService {
       throw new Error("Invalid user or missing Stripe customer ID.");
     }
 
+    if (user.subscribed) {
+      throw new Error("User is already subscribed.");
+    }
+
     const stripeCustomerId = user.stripeCustomerId;
     console.log({ stripeCustomerId });
 
@@ -99,6 +103,14 @@ export class PaymentService {
       } else if (!paymentDto.saveCard && existingSavedCard) {
         await SavedPaymentMethodModel.deleteOne(
           { _id: existingSavedCard._id },
+          { session }
+        );
+      }
+
+      if (paymentIntent.status === "succeeded") {
+        await UserModel.updateOne(
+          { _id: userId },
+          { $set: { subscribed: true } },
           { session }
         );
       }

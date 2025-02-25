@@ -2,6 +2,7 @@ import { Service } from "typedi";
 import jwt from "jsonwebtoken";
 import {
   ChangePassowordDto,
+  ForgotPasswordDto,
   ResetPasswordDto,
   SendOTPDto,
   SigninDto,
@@ -11,9 +12,9 @@ import {
 import { OTPModel, UserModel } from "../models/auth.model";
 import { env } from "../../config/env";
 import { generateOTP } from "../../common/utils/otp.util";
-import { sendOTPEmail } from "../../config/nodemailer-config";
 import mongoose from "mongoose";
 import { stripe } from "../../config/stripe-config";
+import { sendOTPEmail } from "../../common/utils/nodemailer.util";
 
 @Service()
 export class AuthService {
@@ -24,7 +25,9 @@ export class AuthService {
       });
 
       if (existingUser && existingUser.isVerified)
-        throw new Error("User already exists");
+        throw new Error(
+          "User already exists. Email or Phone Number already registered"
+        );
 
       if (!existingUser) await UserModel.create(data);
 
@@ -62,15 +65,18 @@ export class AuthService {
     }
   }
 
-  async forgotPassword(email: string): Promise<string> {
+  async forgotPassword(data: ForgotPasswordDto): Promise<string> {
     try {
       const user = await UserModel.findOne({
-        email,
+        email: data.email,
         isVerified: true,
       });
       if (!user) throw new Error("User not found");
 
-      return await this.sendOTP({ email, context: "forgot-password" });
+      return await this.sendOTP({
+        email: data.email,
+        context: "forgot-password",
+      });
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`OTP generation failed: ${error.message}`);
@@ -98,11 +104,7 @@ export class AuthService {
       email: data.email,
       otpCode,
     });
-    await sendOTPEmail(
-      data.email,
-      "Verify Your Account",
-      `Your OTP is: ${otpCode}`
-    );
+    await sendOTPEmail(data.email, otpCode);
     return `OTP resent for ${data.context} successfully`;
   }
 
