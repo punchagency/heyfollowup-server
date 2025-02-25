@@ -30,6 +30,8 @@ app.use("/api/payment", paymentRouter);
 
 app.use(errorMiddleware);
 
-app.listen(env.server_port, () => {
-  console.log(`Server running on http://localhost:${env.server_port}`);
+const PORT = process.env.PORT || env.server_port; // Use Heroku's port or fallback to env config
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
