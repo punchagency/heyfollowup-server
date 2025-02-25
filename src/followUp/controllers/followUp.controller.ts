@@ -1,15 +1,20 @@
 import { Service } from "typedi";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { validateOrReject } from "class-validator";
 import { FollowUpService } from "../services/followUp.service";
 import { FollowUpDto } from "../dtos/followUp.dto";
 import { AuthRequest } from "../../common/middlewares/auth.middleware";
+import { ApiError } from "../../common/middlewares/error.middleware";
 
 @Service()
 export class FollowUpController {
   constructor(private readonly followUpService: FollowUpService) {}
 
-  async createFollowUp(req: AuthRequest, res: Response): Promise<void> {
+  async createFollowUp(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const data = Object.assign(new FollowUpDto(), req.body);
       data.date = new Date(data.date);
@@ -20,26 +25,28 @@ export class FollowUpController {
       );
       res.status(201).json({ success: true, response });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An unexpected error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  async getFollowUps(req: AuthRequest, res: Response): Promise<void> {
+  async getFollowUps(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const followUps = await this.followUpService.getFollowUps(req.user.id);
       res.status(200).json({ success: true, followUps });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An unexpected error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  async getFollowUpById(req: AuthRequest, res: Response): Promise<void> {
+  async getFollowUpById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const { followUpId } = req.params;
       const followUp = await this.followUpService.getFollowUpById(
@@ -48,16 +55,14 @@ export class FollowUpController {
       );
       res.status(200).json({ success: true, followUp });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An unexpected error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
   async generateFollowUpMessage(
     req: AuthRequest,
-    res: Response
+    res: Response,
+    next: NextFunction
   ): Promise<void> {
     try {
       const { followUpId } = req.params;
@@ -68,10 +73,7 @@ export class FollowUpController {
 
       res.status(200).json({ success: true, response });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An unexpected error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 

@@ -18,6 +18,7 @@ export class PaymentService {
     }
 
     const stripeCustomerId = user.stripeCustomerId;
+    console.log({ stripeCustomerId });
 
     const session = await mongoose.startSession();
     session.startTransaction();
@@ -28,21 +29,30 @@ export class PaymentService {
         throw new Error("Invalid Stripe customer ID.");
       }
 
-      // Validate that the payment method exists and belongs to the user
       const paymentMethod = await stripe.paymentMethods.retrieve(
         paymentDto.paymentMethodId
       );
-      if (paymentMethod.customer !== stripeCustomerId) {
-        throw new Error("Payment method does not belong to the user.");
+      console.log(paymentMethod.customer, paymentDto.paymentMethodId);
+
+      // If paymentMethod is not attached to a customer, attach it
+      if (!paymentMethod.customer) {
+        console.log("Attaching PaymentMethod to customer...");
+        await stripe.paymentMethods.attach(paymentDto.paymentMethodId, {
+          customer: stripeCustomerId,
+        });
       }
 
       // Create Payment Intent
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: this.fixedAmount, // $134.00 in cents
+        amount: this.fixedAmount,
         currency: this.currency,
         payment_method: paymentDto.paymentMethodId,
-        customer: stripeCustomerId, // Ensure user has a Stripe customer ID
+        customer: stripeCustomerId,
         confirm: true,
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: "never",
+        },
         setup_future_usage: paymentDto.saveCard ? "off_session" : undefined, // Save card if checked
       });
 
@@ -62,7 +72,7 @@ export class PaymentService {
         { session }
       );
 
-      // ✅ Check if card is already saved
+      //  Check if card is already saved
       const existingSavedCard = await SavedPaymentMethodModel.findOne({
         userId,
         stripePaymentMethodId: paymentDto.paymentMethodId,
@@ -98,44 +108,57 @@ export class PaymentService {
       return { success: true, payment };
     } catch (error) {
       await session.abortTransaction();
-      session.endSession();
       if (error instanceof Stripe.errors.StripeError) {
         throw new Error(`Stripe error: ${error.message}`);
       }
       throw new Error(`Payment failed: ${(error as Error).message}`);
+    } finally {
+      session.endSession();
     }
   }
 
   async getAllPayments(userId: string) {
-    return await PaymentModel.find({ userId }).sort({ createdAt: -1 });
+    try {
+      return await PaymentModel.find({ userId }).sort({ createdAt: -1 });
+    } catch (error) {
+      throw new Error(`Failed to fetch payments: ${(error as Error).message}`);
+    }
   }
 
-  // ✅ Get a specific payment by ID
   async getPaymentById(userId: string, paymentId: string) {
-    const payment = await PaymentModel.findOne({ _id: paymentId, userId });
-    if (!payment) {
-      throw new Error("Payment not found");
+    try {
+      const payment = await PaymentModel.findOne({ _id: paymentId, userId });
+      if (!payment) throw new Error("Payment not found");
+      return payment;
+    } catch (error) {
+      throw new Error(`Failed to fetch payment: ${(error as Error).message}`);
     }
-    return payment;
   }
 
-  // ✅ Get saved cards for a user
   async getSavedCards(userId: string) {
-    return await SavedPaymentMethodModel.find({ userId });
+    try {
+      return await SavedPaymentMethodModel.find({ userId });
+    } catch (error) {
+      throw new Error(
+        `Failed to fetch saved cards: ${(error as Error).message}`
+      );
+    }
   }
 
-  // ✅ Delete a saved payment method
   async deletePaymentMethod(userId: string, paymentMethodId: string) {
-    const paymentMethod = await SavedPaymentMethodModel.findOneAndDelete({
-      userId,
-      stripePaymentMethodId: paymentMethodId,
-    });
-
-    if (!paymentMethod) {
-      throw new Error("Payment method not found");
+    try {
+      const paymentMethod = await SavedPaymentMethodModel.findOneAndDelete({
+        userId,
+        stripePaymentMethodId: paymentMethodId,
+      });
+      if (!paymentMethod) {
+        throw new Error("Payment method not found");
+      }
+      await stripe.paymentMethods.detach(paymentMethodId);
+    } catch (error) {
+      throw new Error(
+        `Failed to delete payment method: ${(error as Error).message}`
+      );
     }
-
-    // Optionally, detach the payment method from Stripe
-    await stripe.paymentMethods.detach(paymentMethodId);
   }
 }

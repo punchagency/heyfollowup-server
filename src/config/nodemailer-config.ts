@@ -11,7 +11,11 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export const sendEmail = async (to: string, subject: string, text: string) => {
+export const sendOTPEmail = async (
+  to: string,
+  subject: string,
+  text: string
+) => {
   const res = await transporter.sendMail({
     from: `"No-Reply" <${env.smtp.user}>`,
     to,

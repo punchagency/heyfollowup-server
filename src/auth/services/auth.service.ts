@@ -11,7 +11,7 @@ import {
 import { OTPModel, UserModel } from "../models/auth.model";
 import { env } from "../../config/env";
 import { generateOTP } from "../../common/utils/otp.util";
-import { sendEmail } from "../../config/nodemailer-config";
+import { sendOTPEmail } from "../../config/nodemailer-config";
 import mongoose from "mongoose";
 import { stripe } from "../../config/stripe-config";
 
@@ -93,11 +93,12 @@ export class AuthService {
 
     await OTPModel.deleteMany({ email: data.email });
     const otpCode = generateOTP();
+    console.log({ otpCode });
     await OTPModel.create({
       email: data.email,
       otpCode,
     });
-    await sendEmail(
+    await sendOTPEmail(
       data.email,
       "Verify Your Account",
       `Your OTP is: ${otpCode}`
@@ -174,13 +175,14 @@ export class AuthService {
           user.email,
           user.full_name
         );
+        console.log({ stripeCustomerId });
 
         await UserModel.findByIdAndUpdate(
           user._id,
           {
-            isVerified: true,
+            $set: { isVerified: true, stripeCustomerId },
           },
-          { stripeCustomerId }
+          { new: true } // Return updated user and ensure session is used
         ).session(session);
       }
 
@@ -189,13 +191,14 @@ export class AuthService {
       return "OTP Verified successfully";
     } catch (error) {
       await session.abortTransaction();
-      session.endSession();
 
       if (error instanceof Error) {
         throw new Error(`OTP verification failed: ${error.message}`);
       } else {
         throw new Error("OTP verification failed: An unknown error occurred");
       }
+    } finally {
+      session.endSession();
     }
   }
 
@@ -219,6 +222,21 @@ export class AuthService {
     }
   }
 
+  async getProfile(userId: string): Promise<any> {
+    try {
+      const user = await UserModel.findById(userId, { password: 0 }).lean();
+      if (!user) throw new Error("User not found");
+
+      return user;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to retrieve user: ${error.message}`);
+      } else {
+        throw new Error("Failed to retrieve user: An unknown error occurred");
+      }
+    }
+  }
+
   private generateTokens(user: any): {
     accessToken: string;
     refreshToken: string;
@@ -236,12 +254,11 @@ export class AuthService {
 
   private generateAccessToken(user: any): string {
     return jwt.sign({ id: user._id, email: user.email }, env.jwtSecret, {
-      // expiresIn: 900,
-      expiresIn: 3600,
+      expiresIn: 900,
     });
   }
 
-  async generateStripeId(email: string, name: string): Promise<string> {
+  private async generateStripeId(email: string, name: string): Promise<string> {
     const customer = await stripe.customers.create({
       email,
       name,
@@ -250,32 +267,17 @@ export class AuthService {
     return customer.id;
   }
 
-  async getProfile(userId: string): Promise<any> {
-    try {
-      const user = await UserModel.findById(userId, { password: 0 }).lean();
-      if (!user) throw new Error("User not found");
-
-      return user;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to retrieve user: ${error.message}`);
-      } else {
-        throw new Error("Failed to retrieve user: An unknown error occurred");
-      }
-    }
-  }
-
-  async getAll() {
-    try {
-      // return await UserModel.find();
-      const users = await UserModel.find({}, { password: 0 }).lean();
-      return users;
-    } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(`Failed to retrieve users: ${error.message}`);
-      } else {
-        throw new Error("Failed to retrieve users: An unknown error occurred");
-      }
-    }
-  }
+  // async getAll() {
+  //   try {
+  //     // return await UserModel.find();
+  //     const users = await UserModel.find({}, { password: 0 }).lean();
+  //     return users;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       throw new Error(`Failed to retrieve users: ${error.message}`);
+  //     } else {
+  //       throw new Error("Failed to retrieve users: An unknown error occurred");
+  //     }
+  //   }
+  // }
 }

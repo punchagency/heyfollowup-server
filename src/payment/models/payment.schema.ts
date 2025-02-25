@@ -23,13 +23,13 @@ export class SavedPaymentMethod {
   userId: Ref<User>;
 
   @prop({ required: true })
-  stripePaymentMethodId: string; // Store Stripe's tokenized PaymentMethod ID
+  stripePaymentMethodId: string;
 
   @prop({ required: true })
-  brand: string; // e.g., Visa, MasterCard
+  brand: string;
 
   @prop({ required: true })
-  last4: string; // Last 4 digits of the card
+  last4: string;
 
   @prop({ required: true })
   expMonth: number;

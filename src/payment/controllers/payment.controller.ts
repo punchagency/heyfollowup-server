@@ -1,15 +1,20 @@
 import { Service } from "typedi";
-import { Response } from "express";
+import { NextFunction, Response } from "express";
 import { validateOrReject } from "class-validator";
 import { PaymentService } from "../services/payment.service";
 import { PaymentDto } from "../dtos/payment.dto";
 import { AuthRequest } from "../../common/middlewares/auth.middleware";
+import { ApiError } from "../../common/middlewares/error.middleware";
 
 @Service()
 export class PaymentController {
   constructor(private readonly paymentService: PaymentService) {}
 
-  async processPayment(req: AuthRequest, res: Response): Promise<void> {
+  async processPayment(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const paymentData = Object.assign(new PaymentDto(), req.body);
       await validateOrReject(paymentData);
@@ -21,27 +26,28 @@ export class PaymentController {
 
       res.status(201).json({ success: true, result });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  async getAllPayments(req: AuthRequest, res: Response): Promise<void> {
+  async getAllPayments(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const payments = await this.paymentService.getAllPayments(req.user.id);
       res.status(200).json({ success: true, payments });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  // ✅ Get a specific payment by ID
-  async getPaymentById(req: AuthRequest, res: Response): Promise<void> {
+  async getPaymentById(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const payment = await this.paymentService.getPaymentById(
         req.user.id,
@@ -49,28 +55,28 @@ export class PaymentController {
       );
       res.status(200).json({ success: true, payment });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  // ✅ Get Saved Cards
-  async getSavedCards(req: AuthRequest, res: Response): Promise<void> {
+  async getSavedCards(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       const cards = await this.paymentService.getSavedCards(req.user.id);
       res.status(200).json({ success: true, cards });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 
-  // ✅ Delete a saved payment method
-  async deletePaymentMethod(req: AuthRequest, res: Response): Promise<void> {
+  async deletePaymentMethod(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
     try {
       await this.paymentService.deletePaymentMethod(
         req.user.id,
@@ -80,10 +86,7 @@ export class PaymentController {
         .status(200)
         .json({ success: true, message: "Payment method deleted" });
     } catch (error: any) {
-      res.status(400).json({
-        success: false,
-        error: error.message || error || "An error occurred",
-      });
+      next(new ApiError(error.message, 400));
     }
   }
 }

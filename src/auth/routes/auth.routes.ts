@@ -33,6 +33,6 @@ authRouter.get(
   authenticate,
   authController.getProfile.bind(authController)
 );
-authRouter.get("/", authController.getAll.bind(authController));
+// authRouter.get("/", authController.getAll.bind(authController));
 
 export default authRouter;
