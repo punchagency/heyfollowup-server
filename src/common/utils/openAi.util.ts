@@ -11,16 +11,27 @@ export const generateFollowUpMessage = async (followUpDto: any) => {
     nextSteps,
   } = followUpDto;
 
-  const prompt = `Generate a professional yet friendly follow-up message based on the following details:
-    - My name: ${name}
-    - Person I met: ${metWith}
-    - Meeting Date: ${date ? date.toDateString() : "Not specified"}
-    - Meeting Location: ${meetingLocation || "Not specified"}
-    - Random Facts: ${randomFacts || "Not provided"}
-    - LinkedIn Profile: ${linkedinUrl || "Not provided"}
-    - Next Steps: ${nextSteps?.join(", ") || "No specific steps"} 
-    
-    Format the message professionally but concisely.`;
+  const prompt = `Generate a friendly and professional follow-up message based on these details:
+  - My name: ${name}
+  - Person I met: ${metWith}
+  - Meeting Date: ${date ? date.toDateString() : "Not specified"}
+  - Meeting Location: ${meetingLocation || "Not specified"}
+  - Discussion Topics: ${randomFacts || "Not provided"}
+  - Next Steps: ${nextSteps?.join(", ") || "No specific steps"} 
+  
+  The message should be **concise, warm, and engaging**, similar to this structure:
+
+  ---
+  Hi [Name],  
+  I wanted to follow up on our conversation at [Meeting Location/Event].  
+  I really enjoyed our discussion on [Topic].  
+  Let me know if you'd like to continue our chat over coffee or a call!  
+  Looking forward to staying in touch.  
+  Best,  
+  [Your Name]  
+  ---
+
+  Adjust the tone based on the details provided while keeping it professional yet friendly.`;
 
   try {
     const response = await openai.chat.completions.create({

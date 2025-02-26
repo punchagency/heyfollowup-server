@@ -99,7 +99,6 @@ export class AuthService {
 
     await OTPModel.deleteMany({ email: data.email });
     const otpCode = generateOTP();
-    console.log({ otpCode });
     await OTPModel.create({
       email: data.email,
       otpCode,
@@ -177,7 +176,6 @@ export class AuthService {
           user.email,
           user.full_name
         );
-        console.log({ stripeCustomerId });
 
         await UserModel.findByIdAndUpdate(
           user._id,

@@ -8,7 +8,7 @@ export const sendOTPEmail = async (to: string, otp: string) => {
 
     Your One-Time Password (OTP) for verification is: ${otp}
 
-    This OTP is valid for **5 minutes**. Please do not share it with anyone.
+    This OTP is valid for 5 minutes. Please do not share it with anyone.
 
     If you did not request this OTP, please ignore this email.
 

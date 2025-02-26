@@ -17,7 +17,6 @@ export class FollowUpController {
   ): Promise<void> {
     try {
       const data = Object.assign(new FollowUpDto(), req.body);
-      data.date = new Date(data.date);
       await validateOrReject(data);
       const response = await this.followUpService.createFollowUp(
         req.user.id,

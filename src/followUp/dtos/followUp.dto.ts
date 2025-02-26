@@ -15,9 +15,8 @@ export class FollowUpDto {
   name: string;
 
   @IsOptional()
-  @IsDate()
-  @Type(() => Date)
-  date?: Date;
+  @IsString()
+  date?: string;
 
   @IsString()
   metWith: string;
