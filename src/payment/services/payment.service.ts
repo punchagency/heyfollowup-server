@@ -5,6 +5,7 @@ import { stripe } from "../../config/stripe-config";
 import mongoose from "mongoose";
 import { UserModel } from "../../auth/models/auth.model";
 import Stripe from "stripe";
+import { env } from "../../config/env";
 
 @Service()
 export class PaymentService {
@@ -55,8 +56,9 @@ export class PaymentService {
         confirm: true,
         automatic_payment_methods: {
           enabled: true,
-          allow_redirects: "never",
+          allow_redirects: "always",
         },
+        return_url: `${env.redirectsUrl}`,
         setup_future_usage: paymentDto.saveCard ? "off_session" : undefined, // Save card if checked
       });
 

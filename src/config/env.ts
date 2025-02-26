@@ -6,6 +6,7 @@ export const env = {
   mongoURI: process.env.MONGO_URI,
   jwtSecret: process.env.JWT_SECRET!,
   refreshSecret: process.env.REFRESH_SECRET!,
+  redirectsUrl: process.env.FRONTEND_PAYMENT_SUCCESS_URL as string,
   smtp: {
     host: process.env.SMTP_HOST!,
     port: Number(process.env.SMTP_PORT!),
