@@ -76,7 +76,7 @@ export class FollowUpService {
 
       const newMessage = await generateFollowUpMessage(followUp);
 
-      return { followUp, newMessage };
+      return { newMessage };
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to generate follow-up: ${error.message}`);
