@@ -1,5 +1,5 @@
 import { Service } from "typedi";
-import { FollowUpDto } from "../dtos/followUp.dto";
+import { FollowUpDto, UpdateFollowUpDto } from "../dtos/followUp.dto";
 import { FollowUpModel } from "../models/followUp.model";
 import { generateFollowUpMessage } from "../../common/utils/openAi.util";
 import mongoose from "mongoose";
@@ -19,7 +19,6 @@ export class FollowUpService {
       if (data.schedule === "Follow Up Now") {
         message = await generateFollowUpMessage(data);
       }
-
       const followUp = await FollowUpModel.create({ ...data, userId });
 
       return { followUp, message };
@@ -66,52 +65,37 @@ export class FollowUpService {
     }
   }
 
-  async generateFollowUpMessage(userId: string, followUpId: string) {
+  async updateFollowUp(
+    userId: string,
+    followUpId: string,
+    data: UpdateFollowUpDto
+  ) {
     try {
       if (!mongoose.Types.ObjectId.isValid(followUpId)) {
         throw new Error("Invalid mongodb ID");
       }
-      const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
-      if (!followUp) throw new Error("Follow-up not found or unauthorized");
 
-      const newMessage = await generateFollowUpMessage(followUp);
+      const updatedFollowUp = await FollowUpModel.findByIdAndUpdate(
+        { _id: followUpId, userId },
+        data,
+        { new: true, runValidators: true }
+      );
+      if (!updatedFollowUp)
+        throw new Error("Follow-up not found or unauthorized");
 
-      return { newMessage };
+      const newMessage = await generateFollowUpMessage(updatedFollowUp);
+
+      return { updatedFollowUp, newMessage };
     } catch (error) {
       if (error instanceof Error) {
-        throw new Error(`Failed to generate follow-up: ${error.message}`);
+        throw new Error(`Failed to update follow-up: ${error.message}`);
       } else {
         throw new Error(
-          "Failed to generate follow-up: An unknown error occurred"
+          "Failed to update follow-up: An unknown error occurred"
         );
       }
     }
   }
-
-  // async updateFollowUp(
-  //   userId: string,
-  //   followUpId: string,
-  //   data: Partial<FollowUpDto>
-  // ) {
-  //   try {
-  //     const updatedFollowUp = await FollowUpModel.findByIdAndUpdate(
-  //       { _id: followUpId, userId },
-  //       data,
-  //       { new: true, runValidators: true }
-  //     );
-  //     if (!updatedFollowUp)
-  //       throw new Error("Follow-up not found or unauthorized");
-  //     return updatedFollowUp;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(`Failed to update follow-up: ${error.message}`);
-  //     } else {
-  //       throw new Error(
-  //         "Failed to update follow-up: An unknown error occurred"
-  //       );
-  //     }
-  //   }
-  // }
 
   // async deleteFollowUp(userId: string, followUpId: string) {
   //   try {

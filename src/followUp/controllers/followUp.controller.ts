@@ -2,7 +2,7 @@ import { Service } from "typedi";
 import { NextFunction, Response } from "express";
 import { validateOrReject } from "class-validator";
 import { FollowUpService } from "../services/followUp.service";
-import { FollowUpDto } from "../dtos/followUp.dto";
+import { FollowUpDto, UpdateFollowUpDto } from "../dtos/followUp.dto";
 import { AuthRequest } from "../../common/middlewares/auth.middleware";
 import { ApiError } from "../../common/middlewares/error.middleware";
 
@@ -58,16 +58,19 @@ export class FollowUpController {
     }
   }
 
-  async generateFollowUpMessage(
+  async updateFollowUp(
     req: AuthRequest,
     res: Response,
     next: NextFunction
   ): Promise<void> {
     try {
+      const data = Object.assign(new UpdateFollowUpDto(), req.body);
+      await validateOrReject(data);
       const { followUpId } = req.params;
-      const response = await this.followUpService.generateFollowUpMessage(
+      const response = await this.followUpService.updateFollowUp(
         req.user.id,
-        followUpId
+        followUpId,
+        data
       );
 
       res.status(200).json({ success: true, response });
@@ -75,20 +78,6 @@ export class FollowUpController {
       next(new ApiError(error, 400));
     }
   }
-
-  // async updateFollowUp(req: AuthRequest, res: Response): Promise<void> {
-  //   try {
-  //     const { followUpId } = req.params;
-  //     const updatedFollowUp = await this.followUpService.updateFollowUp(
-  //       req.user.id,
-  //       followUpId,
-  //       req.body
-  //     );
-  //     res.status(200).json({ success: true, followUp: updatedFollowUp });
-  //   } catch (error: any) {
-  //     res.status(400).json({ success: false, error: error.message });
-  //   }
-  // }
 
   // async deleteFollowUp(req: AuthRequest, res: Response): Promise<void> {
   //   try {

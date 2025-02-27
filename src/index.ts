@@ -10,10 +10,13 @@ import authRouter from "./auth/routes/auth.routes";
 import followUpRouter from "./followUp/routes/followUp.routes";
 import paymentRouter from "./payment/routes/payment.route";
 import apiLimiter from "./common/middlewares/rate-limit.middleware";
+import bodyParser from "body-parser";
 
 dotenv.config();
 
 const app = express();
+app.use(bodyParser.json({ limit: "10mb" }));
+app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
 app.use(
   cors()

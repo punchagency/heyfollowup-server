@@ -50,12 +50,11 @@ export class FollowUpDto {
   )
   nextSteps?: string[];
 
-  @IsOptional()
   @IsString()
   @IsEnum(["Follow Up Now", "Follow Up Later"], {
     message: "Invalid schedule option",
   })
-  schedule?: string;
+  schedule: string;
 
   @IsOptional()
   @IsNumber()
@@ -64,4 +63,14 @@ export class FollowUpDto {
   @IsOptional()
   @IsPhoneNumber(undefined, { message: "Invalid phone number format" })
   phoneNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  image?: string;
+}
+
+export class UpdateFollowUpDto {
+  constructor(init?: Partial<FollowUpDto>) {
+    Object.assign(this, init);
+  }
 }

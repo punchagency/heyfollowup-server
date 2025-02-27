@@ -43,10 +43,10 @@ export class FollowUp {
   nextSteps?: string[];
 
   @prop({
-    required: false,
+    required: true,
     enum: ["Follow Up Now", "Follow Up Later"],
   })
-  schedule?: string;
+  schedule: string;
 
   @prop()
   followUpDays?: number;
@@ -57,4 +57,7 @@ export class FollowUp {
     // sparse: true,
   })
   phoneNumber?: string;
+
+  @prop()
+  image: string;
 }

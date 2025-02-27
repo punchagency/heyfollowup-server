@@ -14,11 +14,12 @@ export const generateFollowUpMessage = async (followUpDto: any) => {
   const prompt = `Generate a friendly and professional follow-up message based on these details:
   - My name: ${name}
   - Person I met: ${metWith}
-  - Meeting Date: ${date ? date.toDateString() : "Not specified"}
+  - Meeting Date: ${
+    date instanceof Date ? date.toDateString() : date || "Not specified"
+  }
   - Meeting Location: ${meetingLocation || "Not specified"}
   - Discussion Topics: ${randomFacts || "Not provided"}
-  - Next Steps: ${nextSteps?.join(", ") || "No specific steps"} 
-  
+  - Next Steps: ${nextSteps?.join(", ") || "No specific steps"}
   The message should be **concise, warm, and engaging**, similar to this structure:
 
   ---
