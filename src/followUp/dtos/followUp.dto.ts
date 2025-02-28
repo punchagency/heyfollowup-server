@@ -37,7 +37,7 @@ export class FollowUpDto {
   linkedinUrl?: string;
 
   @IsOptional()
-  @IsArray()
+  @IsString()
   @IsEnum(
     [
       "Ignore",
@@ -46,9 +46,9 @@ export class FollowUpDto {
       "Schedule Follow Up",
       "Send Them Info",
     ],
-    { each: true }
+    { message: "Invalid next steps option" }
   )
-  nextSteps?: string[];
+  nextSteps?: string;
 
   @IsString()
   @IsEnum(["Follow Up Now", "Follow Up Later"], {

@@ -31,7 +31,6 @@ export class FollowUp {
   linkedinUrl?: string;
 
   @prop({
-    type: () => [String],
     enum: [
       "Ignore",
       "Connect Them To Someone",
@@ -40,7 +39,7 @@ export class FollowUp {
       "Send Them Info",
     ],
   })
-  nextSteps?: string[];
+  nextSteps?: string;
 
   @prop({
     required: true,
