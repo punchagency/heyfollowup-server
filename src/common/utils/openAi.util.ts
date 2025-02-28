@@ -19,7 +19,7 @@ export const generateFollowUpMessage = async (followUpDto: any) => {
   }
   - Meeting Location: ${meetingLocation || "Not specified"}
   - Discussion Topics: ${randomFacts || "Not provided"}
-  - Next Steps: ${nextSteps?.join(", ") || "No specific steps"}
+  - Next Steps: ${nextSteps || "No specific steps"}
   The message should be **concise, warm, and engaging**, similar to this structure:
 
   ---
