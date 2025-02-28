@@ -26,6 +26,11 @@ followUpRouter.patch(
   authenticate,
   followUpController.updateFollowUp.bind(followUpController)
 );
+followUpRouter.get(
+  "/generate/:followUpId/",
+  authenticate,
+  followUpController.generateFollowUpMessage.bind(followUpController)
+);
 // followUpRouter.delete(
 //   "/:followUpId",
 //   authenticate,

@@ -65,6 +65,28 @@ export class FollowUpService {
     }
   }
 
+  async generateFollowUpMessage(userId: string, followUpId: string) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(followUpId)) {
+        throw new Error("Invalid mongodb ID");
+      }
+      const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
+      if (!followUp) throw new Error("Follow-up not found or unauthorized");
+
+      const newMessage = await generateFollowUpMessage(followUp);
+
+      return { newMessage };
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate follow-up: ${error.message}`);
+      } else {
+        throw new Error(
+          "Failed to generate follow-up: An unknown error occurred"
+        );
+      }
+    }
+  }
+
   async updateFollowUp(
     userId: string,
     followUpId: string,
@@ -83,9 +105,7 @@ export class FollowUpService {
       if (!updatedFollowUp)
         throw new Error("Follow-up not found or unauthorized");
 
-      const newMessage = await generateFollowUpMessage(updatedFollowUp);
-
-      return { updatedFollowUp, newMessage };
+      return { updatedFollowUp };
     } catch (error) {
       if (error instanceof Error) {
         throw new Error(`Failed to update follow-up: ${error.message}`);

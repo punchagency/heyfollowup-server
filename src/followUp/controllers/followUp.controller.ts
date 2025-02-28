@@ -58,6 +58,24 @@ export class FollowUpController {
     }
   }
 
+  async generateFollowUpMessage(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { followUpId } = req.params;
+      const response = await this.followUpService.generateFollowUpMessage(
+        req.user.id,
+        followUpId
+      );
+
+      res.status(200).json({ success: true, response });
+    } catch (error: any) {
+      next(new ApiError(error, 400));
+    }
+  }
+
   async updateFollowUp(
     req: AuthRequest,
     res: Response,
