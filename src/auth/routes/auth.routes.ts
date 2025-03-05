@@ -33,6 +33,11 @@ authRouter.get(
   authenticate,
   authController.getProfile.bind(authController)
 );
+authRouter.delete(
+  "/profile",
+  authenticate,
+  authController.deleteUser.bind(authController)
+);
 // authRouter.get("/", authController.getAll.bind(authController));
 
 export default authRouter;

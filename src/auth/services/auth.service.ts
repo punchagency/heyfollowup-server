@@ -150,6 +150,21 @@ export class AuthService {
     }
   }
 
+  async deleteUser(userId: string): Promise<void> {
+    try {
+      const user = await UserModel.findById(userId);
+      if (!user) throw new Error("User not found");
+
+      await UserModel.findByIdAndDelete(userId);
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`User deletion failed: ${error.message}`);
+      } else {
+        throw new Error("User deletion failed: An unknown error occurred");
+      }
+    }
+  }
+
   async verifyOTP(data: VerifyOtpDto): Promise<string> {
     const session = await mongoose.startSession();
     session.startTransaction();

@@ -127,6 +127,21 @@ export class AuthController {
     }
   }
 
+  async deleteUser(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      await this.authService.deleteUser(req.user.id);
+      res
+        .status(200)
+        .json({ success: true, message: "User deleted successfully" });
+    } catch (error: any) {
+      next(new ApiError(error, 400));
+    }
+  }
+
   async sendOTP(
     req: Request,
     res: Response,
