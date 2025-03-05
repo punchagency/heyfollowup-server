@@ -282,17 +282,17 @@ export class AuthService {
     return customer.id;
   }
 
-  // async getAll() {
-  //   try {
-  //     // return await UserModel.find();
-  //     const users = await UserModel.find({}, { password: 0 }).lean();
-  //     return users;
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       throw new Error(`Failed to retrieve users: ${error.message}`);
-  //     } else {
-  //       throw new Error("Failed to retrieve users: An unknown error occurred");
-  //     }
-  //   }
-  // }
+  async getAll() {
+    try {
+      // return await UserModel.find();
+      const users = await UserModel.find({}, { password: 0 }).lean();
+      return users;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to retrieve users: ${error.message}`);
+      } else {
+        throw new Error("Failed to retrieve users: An unknown error occurred");
+      }
+    }
+  }
 }

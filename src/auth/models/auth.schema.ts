@@ -13,8 +13,8 @@ export class User {
   @prop({ required: true, unique: true, sparse: true })
   email: string;
 
-  @prop({ required: true, unique: true, sparse: true })
-  phoneNumber: string;
+  @prop({ required: false, unique: true, sparse: true })
+  phoneNumber?: string;
 
   @prop({ required: true })
   password: string;

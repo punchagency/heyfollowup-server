@@ -5,6 +5,7 @@ import {
   IsPhoneNumber,
   IsString,
   IsEnum,
+  IsOptional,
 } from "class-validator";
 
 export class SignupDto {
@@ -14,8 +15,9 @@ export class SignupDto {
   @IsEmail({}, { message: "Invalid email format" })
   email: string;
 
+  @IsOptional()
   @IsPhoneNumber(undefined, { message: "Invalid phone number format" })
-  phoneNumber: string;
+  phoneNumber?: string;
 
   @MinLength(6, { message: "Password must be at least 6 characters long" })
   password: string;

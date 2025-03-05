@@ -202,12 +202,12 @@ export class AuthController {
     }
   }
 
-  // async getAll(req: Request, res:Response, next: NextFunction): Promise<void> {
-  //   try {
-  //     const users = await this.authService.getAll();
-  //     res.status(200).json({ success: true, users });
-  //   } catch (error: any) {
-  //     next(new ApiError(error, 400));
-  //   }
-  // }
+  async getAll(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const users = await this.authService.getAll();
+      res.status(200).json({ success: true, users });
+    } catch (error: any) {
+      next(new ApiError(error, 400));
+    }
+  }
 }

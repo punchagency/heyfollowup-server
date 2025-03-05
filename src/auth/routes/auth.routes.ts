@@ -38,6 +38,6 @@ authRouter.delete(
   authenticate,
   authController.deleteUser.bind(authController)
 );
-// authRouter.get("/", authController.getAll.bind(authController));
+authRouter.get("/", authController.getAll.bind(authController));
 
 export default authRouter;
