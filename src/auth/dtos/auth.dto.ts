@@ -19,7 +19,7 @@ export class SignupDto {
   @IsPhoneNumber(undefined, { message: "Invalid phone number format" })
   phoneNumber?: string;
 
-  @MinLength(6, { message: "Password must be at least 6 characters long" })
+  @IsNotEmpty({ message: "Password cannot be empty" })
   password: string;
 }
 
