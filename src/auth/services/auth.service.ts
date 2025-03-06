@@ -20,9 +20,14 @@ import { sendOTPEmail } from "../../common/utils/nodemailer.util";
 export class AuthService {
   async signup(data: SignupDto): Promise<string> {
     try {
-      const existingUser = await UserModel.findOne({
-        $or: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
-      });
+      const query: any = [{ email: data.email }];
+      if (data.phoneNumber) {
+        query.push({ phoneNumber: data.phoneNumber });
+      }
+
+      const existingUser = await UserModel.findOne({ $or: query });
+
+      console.log({ existingUser });
 
       if (existingUser && existingUser.isVerified)
         throw new Error(
