@@ -9,16 +9,16 @@ import { env } from "../../config/env";
 
 @Service()
 export class PaymentService {
-  private readonly fixedAmount = 13400; // Fixed price in cents ($134.00)
   private readonly currency = "usd";
 
   async processPayment(userId: string, paymentDto: PaymentDto) {
+    console.log("paymentDto: ", paymentDto);
     const user = await UserModel.findById(userId);
     if (!user || !user.stripeCustomerId) {
       throw new Error("Invalid user or missing Stripe customer ID.");
     }
 
-    if (user.subscribed) {
+    if (user.subscriptionExpiresAt > new Date()) {
       throw new Error("User is already subscribed.");
     }
 
@@ -47,9 +47,14 @@ export class PaymentService {
         });
       }
 
+      const planType = paymentDto.plan;
+
+      const amount = planType === "monthly" ? 499 : 4999; // 4.99 or 49.99 in cents
+      const duration = planType === "monthly" ? 30 : 365; // Days
+
       // Create Payment Intent
       const paymentIntent = await stripe.paymentIntents.create({
-        amount: this.fixedAmount,
+        amount: amount,
         currency: this.currency,
         payment_method: paymentDto.paymentMethodId,
         customer: stripeCustomerId,
@@ -69,9 +74,10 @@ export class PaymentService {
         [
           {
             userId,
-            amount: this.fixedAmount / 100,
+            amount: amount / 100,
             currency: this.currency,
             status: paymentIntent.status,
+            plan: planType,
             stripePaymentIntentId: paymentIntent.id,
           },
         ],
@@ -110,9 +116,12 @@ export class PaymentService {
       }
 
       if (paymentIntent.status === "succeeded") {
+        const newExpiryDate = new Date();
+        newExpiryDate.setDate(newExpiryDate.getDate() + duration);
+
         await UserModel.updateOne(
           { _id: userId },
-          { $set: { subscribed: true } },
+          { $set: { subscriptionExpiresAt: newExpiryDate } },
           { session }
         );
       }

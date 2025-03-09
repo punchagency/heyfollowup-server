@@ -1,4 +1,4 @@
-import { IsBoolean, IsString } from "class-validator";
+import { IsBoolean, IsEnum, IsString } from "class-validator";
 
 export class PaymentDto {
   @IsString()
@@ -6,4 +6,10 @@ export class PaymentDto {
 
   @IsBoolean()
   saveCard: boolean;
+
+  @IsString()
+  @IsEnum(["monthly", "yearly"], {
+    message: "Invalid plan option",
+  })
+  plan: string;
 }

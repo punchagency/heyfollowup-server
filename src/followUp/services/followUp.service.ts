@@ -3,16 +3,41 @@ import { FollowUpDto, UpdateFollowUpDto } from "../dtos/followUp.dto";
 import { FollowUpModel } from "../models/followUp.model";
 import { generateFollowUpMessage } from "../../common/utils/openAi.util";
 import mongoose from "mongoose";
+import { UserModel } from "../../auth/models/auth.model";
 
 @Service()
 export class FollowUpService {
   async createFollowUp(userId: string, data: FollowUpDto) {
     try {
-      // const existingFollowUp = await FollowUpModel.findOne({
-      //   $or: [{ email: data.email }, { phoneNumber: data.phoneNumber }],
-      // });
+      const user = await UserModel.findById(userId);
+      if (!user) throw new Error("User not found");
 
-      // if (existingFollowUp) throw new Error("FollowUp already exists");
+      // Check if the user is currently subscribed
+      const isSubscribed = user.subscriptionExpiresAt > new Date();
+
+      // Count user's follow-ups
+      const followUpCount = await FollowUpModel.countDocuments({ userId });
+
+      if (!isSubscribed && followUpCount >= 2) {
+        // Get the latest two follow-ups
+        const latestTwoFollowUps = await FollowUpModel.find({ userId })
+          .sort({ createdAt: -1 }) // Sort by newest first
+          .limit(2);
+
+        // If both were created after subscription expired, deny new follow-up creation
+        if (
+          latestTwoFollowUps.length === 2 &&
+          latestTwoFollowUps.every(
+            (f) =>
+              new Date((f as any).createdAt) >
+              new Date(user.subscriptionExpiresAt)
+          )
+        ) {
+          throw new Error(
+            "Users can only create 2 free follow-ups without a subscription."
+          );
+        }
+      }
 
       let message: string | null = "";
 

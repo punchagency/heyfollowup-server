@@ -11,11 +11,14 @@ export class Payment {
   @prop({ required: true })
   currency: string;
 
-  @prop({ required: true })
-  stripePaymentIntentId: string;
-
   @prop({ required: true, enum: ["succeeded", "pending", "failed"] })
   status: string;
+
+  @prop({ required: true, enum: ["monthly", "yearly"] })
+  plan: string; // Added plan field
+
+  @prop({ required: true })
+  stripePaymentIntentId: string;
 }
 
 export class SavedPaymentMethod {
