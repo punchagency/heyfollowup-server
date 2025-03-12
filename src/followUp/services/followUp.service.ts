@@ -1,7 +1,10 @@
 import { Service } from "typedi";
 import { FollowUpDto, UpdateFollowUpDto } from "../dtos/followUp.dto";
-import { FollowUpModel } from "../models/followUp.model";
-import { generateFollowUpMessage } from "../../common/utils/openAi.util";
+import { FollowUpMessageModel, FollowUpModel } from "../models/followUp.model";
+import {
+  generateFollowUpMessage,
+  generateNewFollowUpMessage,
+} from "../../common/utils/openAi.util";
 import mongoose from "mongoose";
 import { UserModel } from "../../auth/models/auth.model";
 
@@ -12,39 +15,42 @@ export class FollowUpService {
       const user = await UserModel.findById(userId);
       if (!user) throw new Error("User not found");
 
-      // Check if the user is currently subscribed
-      const isSubscribed = user.subscriptionExpiresAt > new Date();
+      // // Check if the user is currently subscribed
+      // const isSubscribed = user.subscriptionExpiresAt > new Date();
 
-      // Count user's follow-ups
-      const followUpCount = await FollowUpModel.countDocuments({ userId });
+      // // Count user's follow-ups
+      // const followUpCount = await FollowUpModel.countDocuments({ userId });
 
-      if (!isSubscribed && followUpCount >= 2) {
-        // Get the latest two follow-ups
-        const latestTwoFollowUps = await FollowUpModel.find({ userId })
-          .sort({ createdAt: -1 }) // Sort by newest first
-          .limit(2);
+      // if (!isSubscribed && followUpCount >= 2) {
+      //   // Get the latest two follow-ups
+      //   const latestTwoFollowUps = await FollowUpModel.find({ userId })
+      //     .sort({ createdAt: -1 }) // Sort by newest first
+      //     .limit(2);
 
-        // If both were created after subscription expired, deny new follow-up creation
-        if (
-          latestTwoFollowUps.length === 2 &&
-          latestTwoFollowUps.every(
-            (f) =>
-              new Date((f as any).createdAt) >
-              new Date(user.subscriptionExpiresAt)
-          )
-        ) {
-          throw new Error(
-            "Users can only create 2 free follow-ups without a subscription."
-          );
-        }
-      }
+      //   // If both were created after subscription expired, deny new follow-up creation
+      //   if (
+      //     latestTwoFollowUps.length === 2 &&
+      //     latestTwoFollowUps.every(
+      //       (f) =>
+      //         new Date((f as any).createdAt) >
+      //         new Date(user.subscriptionExpiresAt)
+      //     )
+      //   ) {
+      //     throw new Error(
+      //       "Users can only create 2 free follow-ups without a subscription."
+      //     );
+      //   }
+      // }
 
+      const followUp = await FollowUpModel.create({ ...data, userId });
       let message: string | null = "";
 
       if (data.schedule === "Follow Up Now") {
-        message = await generateFollowUpMessage(data);
+        message = await this.generateFollowUpMessage(
+          userId,
+          followUp._id.toString()
+        );
       }
-      const followUp = await FollowUpModel.create({ ...data, userId });
 
       return { followUp, message };
     } catch (error) {
@@ -98,7 +104,41 @@ export class FollowUpService {
       const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
       if (!followUp) throw new Error("Follow-up not found or unauthorized");
 
-      const newMessage = await generateFollowUpMessage(followUp);
+      const message = await generateFollowUpMessage(followUp);
+
+      await FollowUpMessageModel.create({
+        followUpId,
+        userId,
+        message,
+      });
+
+      return message;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate follow-up: ${error.message}`);
+      } else {
+        throw new Error(
+          "Failed to generate follow-up: An unknown error occurred"
+        );
+      }
+    }
+  }
+
+  async generateNewFollowUpMessage(userId: string, followUpId: string) {
+    try {
+      if (!mongoose.Types.ObjectId.isValid(followUpId)) {
+        throw new Error("Invalid mongodb ID");
+      }
+      const followUp = await FollowUpModel.findOne({ _id: followUpId, userId });
+      if (!followUp) throw new Error("Follow-up not found or unauthorized");
+
+      const newMessage = await generateNewFollowUpMessage(followUp);
+
+      await FollowUpMessageModel.create({
+        followUpId,
+        userId,
+        message: newMessage,
+      });
 
       return { newMessage };
     } catch (error) {

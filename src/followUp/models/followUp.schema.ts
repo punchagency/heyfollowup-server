@@ -53,10 +53,23 @@ export class FollowUp {
   @prop({
     required: false,
     unique: false,
-    // sparse: true,
   })
   phoneNumber?: string;
 
   @prop()
   image: string;
+}
+
+export class FollowUpMessage {
+  @prop({ required: true, ref: () => FollowUp })
+  followUpId: Ref<FollowUp>;
+
+  @prop({ required: true, ref: () => User })
+  userId: Ref<User>;
+
+  @prop({ required: true })
+  message: string;
+
+  @prop({ default: new Date() })
+  createdAt?: Date;
 }

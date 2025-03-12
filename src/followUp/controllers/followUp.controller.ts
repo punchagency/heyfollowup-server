@@ -5,6 +5,7 @@ import { FollowUpService } from "../services/followUp.service";
 import { FollowUpDto, UpdateFollowUpDto } from "../dtos/followUp.dto";
 import { AuthRequest } from "../../common/middlewares/auth.middleware";
 import { ApiError } from "../../common/middlewares/error.middleware";
+import { FollowUpMessageModel } from "../models/followUp.model";
 
 @Service()
 export class FollowUpController {
@@ -23,6 +24,19 @@ export class FollowUpController {
         data
       );
       res.status(201).json({ success: true, response });
+    } catch (error: any) {
+      next(new ApiError(error, 400));
+    }
+  }
+
+  async getAllMessages(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const messages = await FollowUpMessageModel.find();
+      res.status(200).json({ success: true, messages });
     } catch (error: any) {
       next(new ApiError(error, 400));
     }
@@ -65,7 +79,25 @@ export class FollowUpController {
   ): Promise<void> {
     try {
       const { followUpId } = req.params;
-      const response = await this.followUpService.generateFollowUpMessage(
+      const message = await this.followUpService.generateFollowUpMessage(
+        req.user.id,
+        followUpId
+      );
+
+      res.status(200).json({ success: true, message });
+    } catch (error: any) {
+      next(new ApiError(error, 400));
+    }
+  }
+
+  async generateNewFollowUpMessage(
+    req: AuthRequest,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const { followUpId } = req.params;
+      const response = await this.followUpService.generateNewFollowUpMessage(
         req.user.id,
         followUpId
       );

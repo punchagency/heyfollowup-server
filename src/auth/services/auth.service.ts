@@ -60,6 +60,15 @@ export class AuthService {
 
       if (user.isVerified === false) throw new Error("User not verified");
 
+      user.deviceTokens = user.deviceTokens || [];
+
+      // Add device token if it’s not already stored
+      if (data.deviceToken && !user.deviceTokens.includes(data.deviceToken)) {
+        user.deviceTokens.push(data.deviceToken);
+      }
+
+      await user.save();
+
       return this.generateTokens(user);
     } catch (error) {
       if (error instanceof Error) {

@@ -11,6 +11,7 @@ import followUpRouter from "./followUp/routes/followUp.routes";
 import paymentRouter from "./payment/routes/payment.route";
 import apiLimiter from "./common/middlewares/rate-limit.middleware";
 import bodyParser from "body-parser";
+import "./config/cron-scheduler";
 
 dotenv.config();
 

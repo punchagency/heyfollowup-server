@@ -18,4 +18,7 @@ export const env = {
     secretKey: process.env.STRIPE_SECRET_KEY as string,
     productId: process.env.PRODUCT_ID as string,
   },
+  firebase: {
+    serviceAccount: process.env.FIREBASE_SERVICE_ACCOUNT_BASE64 as string,
+  },
 };

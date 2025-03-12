@@ -17,6 +17,11 @@ followUpRouter.get(
   followUpController.getFollowUps.bind(followUpController)
 );
 followUpRouter.get(
+  "/messages",
+  authenticate,
+  followUpController.getAllMessages.bind(followUpController)
+);
+followUpRouter.get(
   "/:followUpId",
   authenticate,
   followUpController.getFollowUpById.bind(followUpController)
@@ -31,6 +36,12 @@ followUpRouter.get(
   authenticate,
   followUpController.generateFollowUpMessage.bind(followUpController)
 );
+followUpRouter.get(
+  "/generate/new/:followUpId/",
+  authenticate,
+  followUpController.generateNewFollowUpMessage.bind(followUpController)
+);
+
 // followUpRouter.delete(
 //   "/:followUpId",
 //   authenticate,

@@ -25,6 +25,9 @@ export class User {
   @prop({ unique: true, sparse: true })
   stripeCustomerId?: string;
 
+  @prop({ required: false, type: [String] })
+  deviceTokens?: string[];
+
   @prop({ default: () => new Date() })
   subscriptionExpiresAt: Date;
 
