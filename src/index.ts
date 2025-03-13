@@ -17,7 +17,7 @@ import path from "path";
 dotenv.config();
 
 const app = express();
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "../public")));
 app.use(bodyParser.json({ limit: "10mb" }));
 app.use(bodyParser.urlencoded({ limit: "10mb", extended: true }));
 app.use(cookieParser());
@@ -35,7 +35,7 @@ app.use("/api/follow-up", followUpRouter);
 // app.use("/api/payment", paymentRouter);
 app.get("/privacy-policy", (req, res) => {
   res.sendFile(
-    path.join(__dirname, "public", "heyfollowup-privacy-policy.html")
+    path.join(__dirname, "../public", "heyfollowup-privacy-policy.html")
   );
 });
 
