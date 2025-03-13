@@ -19,7 +19,7 @@ export const sendPushNotifications = async (
     const notifications = deviceTokens.map((token) => ({
       token,
       notification: {
-        title: "Reminder Alert",
+        title: "Follow-Up Reminder",
         body: message,
       },
     }));

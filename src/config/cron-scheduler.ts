@@ -4,9 +4,9 @@ import mongoose from "mongoose";
 import { UserModel } from "../auth/models/auth.model";
 import { sendPushNotifications } from "./firebase";
 
-// Schedule job to run at 12 AM every day
+// Schedule job to run at 9 AM every day
 cron.schedule(
-  "27 12 * * *",
+  "0 9 * * *",
   async () => {
     console.log("Running scheduled task...");
 
@@ -37,8 +37,7 @@ cron.schedule(
         if (!user) throw new Error("User not found");
 
         const metWith = followUp.metWith;
-        const message = `Hey! Today is your scheduled follow-up with ${metWith}. Remember to follow up on the HeyFollowUp app.`;
-
+        const message = `Hey ${user.full_name}, It's time to send a follow up to ${metWith}.`;
         if (user.deviceTokens?.length) {
           await sendPushNotifications(user.deviceTokens, message);
         }
@@ -50,7 +49,7 @@ cron.schedule(
     });
   },
   {
-    timezone: "Europe/Berlin",
-    // timezone: "America/New_York"
+    // timezone: "Europe/Berlin",
+    timezone: "America/New_York",
   }
 );
