@@ -30,8 +30,9 @@ export class SigninDto {
   @IsNotEmpty({ message: "Password is required for email-based login" })
   password: string;
 
+  @IsOptional()
   @IsNotEmpty({ message: "Device token is required" })
-  deviceToken: string;
+  deviceToken?: string;
 }
 
 export class SendOTPDto {
